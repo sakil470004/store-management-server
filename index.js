@@ -20,13 +20,9 @@ async function run() {
     try {
         await client.connect()
         const database = client.db('store_management');
-        const cartsCollection = database.collection('carts');
         const medicineCollection = database.collection('medicine');
-        const salesExecutive = database.collection('salesExecutive');
-        const reviewsCollection = database.collection('reviews');
-        const productsCollection = database.collection('products');
-
-
+        const salesExecutiveCollection = database.collection('salesExecutive');
+        const createOrderCollection = database.collection('createOrder');
 
 
 
@@ -42,10 +38,23 @@ async function run() {
             res.json(medicines);
         })
         app.get('/salesExecutives', async (req, res) => {
-            const cursor = salesExecutive.find({});
+            const cursor = salesExecutiveCollection.find({});
             const salesExecutives = await cursor.toArray();
             // console.log(comments)
             res.json(salesExecutives);
+        })
+        app.get('/createOrder', async (req, res) => {
+            const cursor = createOrderCollection.find({});
+            const allOrder = await cursor.toArray();
+            // console.log(comments)
+            res.json(allOrder);
+        })
+        app.get('/createOrder/:userName', async (req, res) => {
+            const userName = req.params.userName;
+            const cursor = createOrderCollection.find({ userName: userName });
+            const allOrder = await cursor.toArray();
+            // console.log(comments)
+            res.json(allOrder);
         })
 
         // POST Api
@@ -58,10 +67,15 @@ async function run() {
         })
         app.post('/salesExecutives', async (req, res) => {
             const salesExecutives = req.body;
-            const result = await salesExecutive.insertOne(salesExecutives);
+            const result = await salesExecutiveCollection.insertOne(salesExecutives);
             res.json(result)
 
             // res.json({message:'sakilhere'})
+        })
+        app.post('/createOrder', async (req, res) => {
+            const orderDetails = req.body;
+            const result = await createOrderCollection.insertOne(orderDetails);
+            res.json(result)
         })
 
         // PUT API
@@ -73,7 +87,7 @@ async function run() {
             const { _id, ...rest } = medicineDetails
             const updateDoc = { $set: { ...rest } };
             const result = await medicineCollection.updateOne(filter, updateDoc);
-          console.log('here')
+            console.log('here')
             res.json(result);
 
         })
@@ -83,7 +97,7 @@ async function run() {
             // const options = { upsert: true };
             const { _id, ...rest } = executiveDetails
             const updateDoc = { $set: { ...rest } };
-            const result = await salesExecutive.updateOne(filter, updateDoc);
+            const result = await salesExecutiveCollection.updateOne(filter, updateDoc);
             res.json(result);
 
         })
@@ -99,7 +113,13 @@ async function run() {
         app.delete('/salesExecutive/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await salesExecutive.deleteOne(query);
+            const result = await salesExecutiveCollection.deleteOne(query);
+            res.json(result);
+        })
+        app.delete('/createOrder/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await createOrderCollection.deleteOne(query);
             res.json(result);
         })
 
