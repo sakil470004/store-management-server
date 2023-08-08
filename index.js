@@ -12,7 +12,6 @@ app.use(express.json());
 
 // mongodb+srv://<username>:<password>@cluster0.poyqe.mongodb.net/?retryWrites=true&w=majority
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.poyqe.mongodb.net/?retryWrites=true&w=majority`;
-console.log(uri)
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
