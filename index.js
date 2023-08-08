@@ -1,8 +1,7 @@
-const express = require('express')
-const app = express()
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const express = require('express');
 const cors = require('cors');
-const { MongoClient } = require('mongodb');
-const ObjectId = require('mongodb').ObjectId;
+const app = express()
 require("dotenv").config();
 const port = process.env.PORT || 5000
 
@@ -11,14 +10,22 @@ app.use(cors())
 // for the access userData body data
 app.use(express.json());
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.poyqe.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
-const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
+// mongodb+srv://<username>:<password>@cluster0.poyqe.mongodb.net/?retryWrites=true&w=majority
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.poyqe.mongodb.net/?retryWrites=true&w=majority`;
+console.log(uri)
+// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
 
 
 async function run() {
     try {
-        await client.connect()
+         client.connect()
         const database = client.db('store_management');
         const medicineCollection = database.collection('medicine');
         const salesExecutiveCollection = database.collection('salesExecutive');
@@ -33,8 +40,8 @@ async function run() {
         //get all the medicine 
         app.get('/medicine', async (req, res) => {
             const cursor = medicineCollection.find({});
+            console.log('here fine')
             const medicines = await cursor.toArray();
-            // console.log(comments)
             res.json(medicines);
         })
         app.get('/salesExecutives', async (req, res) => {
@@ -82,7 +89,7 @@ async function run() {
         // update data
         app.put('/medicines', async (req, res) => {
             const medicineDetails = req.body;
-            const filter = { _id: ObjectId(medicineDetails._id) };
+            const filter = { _id:  new ObjectId(medicineDetails._id) };
             // const options = { upsert: true };
             const { _id, ...rest } = medicineDetails
             const updateDoc = { $set: { ...rest } };
@@ -93,7 +100,7 @@ async function run() {
         })
         app.put('/salesExecutive', async (req, res) => {
             const executiveDetails = req.body;
-            const filter = { _id: ObjectId(executiveDetails._id) };
+            const filter = { _id: new ObjectId(executiveDetails._id) };
             // const options = { upsert: true };
             const { _id, ...rest } = executiveDetails
             const updateDoc = { $set: { ...rest } };
@@ -106,19 +113,19 @@ async function run() {
         // delete one
         app.delete('/medicine/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+            const query = { _id: new ObjectId(id) };
             const result = await medicineCollection.deleteOne(query);
             res.json(result);
         })
         app.delete('/salesExecutive/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+            const query = { _id: new ObjectId(id) };
             const result = await salesExecutiveCollection.deleteOne(query);
             res.json(result);
         })
         app.delete('/createOrder/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: ObjectId(id) };
+            const query = { _id: new ObjectId(id) };
             const result = await createOrderCollection.deleteOne(query);
             res.json(result);
         })
